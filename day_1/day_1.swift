@@ -21,11 +21,22 @@
     - Parse direction and count
     - sign: direction == L ? -1 : 1
     - key: 50 - 51 is the same as 50 - 151, same as 50 - 251 etc. Mod by 10
-    - work with (count * sign) % 10
-        - signedCount + pos > 99 -> total % 100
-        - signedCount + pos < 0 -> 100 - abs(total)
-            - 50 - 53 == -3; expect 97 == 100 - 3
-        - else signedCount + pos
+
+    Branchy approach:
+        - work with (count * sign) % 10
+            - signedCount + pos > 99 -> total % 100
+            - signedCount + pos < 0 -> 100 - abs(total)
+                - 50 - 53 == -3; expect 97 == 100 - 3
+            - else signedCount + pos
+    
+    Clean approach:
+        - work with the total sum
+        - pos == 50. Add 300. 350 % 100 == 50 (correct)
+        - pos == 50. Subtract 170. -120 % 100 == -20. But this should be 80.
+            - + 100 - now we have 80
+        - -120 % 100 and 350 % 100 are common to both cases. But adding 100 is only in the negative case
+            - can be negated by % 100 in the positive case to obtain a single formula
+
 */
 
 import Foundation
@@ -43,16 +54,19 @@ enum Day_1 {
             let sign = move[0] == "R" ? 1 : -1
             let count = Int(String(move[1...move.count - 1]))!
 
-            let signedCount = (sign * count) % 100
+            let signedCount = sign * count
             let total = pos + signedCount
 
-            pos = if total > 99 {
-                total % 100
-            } else if total < 0 {
-                100 - abs(total)
-            } else {
-                total
-            }
+            pos = (100 + (total % 100)) % 100
+
+            // Branchy logic:
+            // pos = if total > 99 {
+            //     total % 100
+            // } else if total < 0 {
+            //     100 - abs(total)
+            // } else {
+            //     total
+            // }
 
             if pos == 0 { result += 1 }
         }
